@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.deepcomplex.App</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>DeepComplex</name>
+  <summary>Configure DPI, RGB lighting, buttons, macros, and 5 profiles for Delux M700A</summary>
+  <summary xml:lang="ar">تخصيص سرعات DPI والإضاءة والأزرار والماكرو و5 بروفايلات لماوس Delux M700A</summary>
+  <summary xml:lang="ru">Настройка DPI, RGB-подсветки, кнопок, макросов и 5 профилей для мыши Delux M700A</summary>
+  <summary xml:lang="zh_CN">为 Delux M700A 鼠标配置 DPI、RGB 灯效、按键、宏和 5 组配置文件</summary>
+
+  <developer id="org.deepcomplex">
+    <name>DeepComplex Contributors</name>
+  </developer>
+
+  <description>
+    <p>
+      DeepComplex is an open-source Linux controller built with Qt 6 and KDE Kirigami
+      for the Delux M700A (Instant A725 / USB 30FA:1040) gaming mouse.
+    </p>
+    <ul>
+      <li>5 independent software profiles with JSON backup and restore</li>
+      <li>6 customizable DPI levels (200–7200 DPI) with per-level indicator colors and live auto-sync</li>
+      <li>14 onboard RGB lighting modes including Reactive and 6-zone Extra Mode color mapping</li>
+      <li>Hardware Macro Studio with layout-independent key capture and multimedia key bindings</li>
+      <li>Strict default Flatpak sandbox isolation with transparent permission risk ratings, command breakdown, and XDG Background Portal autostart</li>
+    </ul>
+  </description>
+
+  <url type="homepage">https://github.com/bufferczd/deepcomplex-aurora</url>
+  <url type="bugtracker">https://github.com/bufferczd/deepcomplex-aurora/issues</url>
+  <url type="vcs-browser">https://github.com/bufferczd/deepcomplex-aurora</url>
+
+  <launchable type="desktop-id">org.deepcomplex.App.desktop</launchable>
+
+  <provides>
+    <modalias>usb:v30FAp1040d*</modalias>
+  </provides>
+
+  <categories>
+    <category>Utility</category>
+    <category>HardwareSettings</category>
+    <category>Settings</category>
+  </categories>
+
+  <keywords>
+    <keyword>mouse</keyword>
+    <keyword>delux</keyword>
+    <keyword>m700a</keyword>
+    <keyword>dpi</keyword>
+    <keyword>rgb</keyword>
+    <keyword>macro</keyword>
+  </keywords>
+
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+
+  <recommends>
+    <display_length compare="ge">760</display_length>
+  </recommends>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="2.8.4" date="2026-11-23">
+      <description>
+        <p>Added security risk ratings and detailed risk notes for every permission and command, fixed onboarding step navigation, added system tray opt-in hint, About card, USB hardware modalias, and GPL-3.0-or-later LICENSE file.</p>
+      </description>
+    </release>
+  </releases>
+</component>

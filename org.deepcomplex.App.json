@@ -1,0 +1,30 @@
+{
+  "app-id": "org.deepcomplex.App",
+  "runtime": "org.kde.Platform",
+  "runtime-version": "6.11",
+  "sdk": "org.kde.Sdk",
+  "command": "deepcomplex",
+  "build-options": {
+    "no-debuginfo": true,
+    "cxxflags": "--param ggc-min-expand=10 --param ggc-min-heapsize=32768",
+    "ldflags": "-Wl,--no-keep-memory"
+  },
+  "finish-args": [
+    "--share=ipc",
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--device=dri"
+  ],
+  "modules": [
+    {
+      "name": "deepcomplex",
+      "buildsystem": "cmake-ninja",
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}

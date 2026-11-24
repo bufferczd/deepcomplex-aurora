@@ -1,0 +1,2 @@
+# Delux M700A (Instant A725) secure HIDRAW access rule (runs before 73-seat-late.rules)
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="30fa", ATTRS{idProduct}=="1040", MODE="0660", TAG+="uaccess"

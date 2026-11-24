@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Name=DeepComplex
+GenericName=Delux M700A Mouse Controller
+GenericName[ar]=متحكم ماوس Delux M700A
+GenericName[ru]=Управление мышью Delux M700A
+GenericName[zh_CN]=Delux M700A 鼠标控制中心
+Comment=Configure DPI, RGB lighting effects, buttons, and 5 profiles for Delux M700A
+Comment[ar]=تخصيص سرعات DPI وتأثيرات الإضاءة والأزرار و5 بروفايلات لماوس Delux M700A
+Comment[ru]=Настройка DPI, RGB-подсветки, кнопок и 5 профилей для Delux M700A
+Comment[zh_CN]=配置 Delux M700A 鼠标的 DPI、RGB 灯效、按键与 5 组配置文件
+Exec=deepcomplex
+Icon=org.deepcomplex.App
+Terminal=false
+Categories=Utility;HardwareSettings;Settings;Qt;KDE;
+Keywords=mouse;delux;m700a;dpi;rgb;gaming;profiles;
+StartupNotify=true
+SingleMainWindow=true
