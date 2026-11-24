@@ -20,6 +20,30 @@ DeepComplex Aurora هو تطبيق مفتوح المصدر لأنظمة لينك
 
 دعم اللغات: متوفر باللغات العربية، الإنجليزية، الروسية، والصينية.
 
+التثبيت
+الخيار 1: من صفحة الإصدارات (الأسهل والموصى به)
+
+    حمّل أحدث ملف .flatpak من صفحة الإصدارات (Releases).
+
+    ثبّت التطبيق وشغّله عبر الطرفية:
+
+Bash
+
+flatpak install --user deepcomplex-v2.8.4.flatpak
+flatpak run org.deepcomplex.App
+
+الخيار 2: البناء والتثبيت من الكود المصدري
+
+المتطلبات: git وflatpak وflatpak-builder وبيئة تشغيل KDE 6.11 (org.kde.Platform//6.11 وorg.kde.Sdk//6.11).
+Bash
+
+git clone [https://github.com/bufferczd/deepcomplex-aurora.git](https://github.com/bufferczd/deepcomplex-aurora.git)
+cd deepcomplex-aurora
+chmod +x run.sh
+./run.sh
+
+    ملاحظة للأجهزة ذات الرام المحدودة: في حال توقف البناء بسبب نفاد الذاكرة، شغّل JOBS=1 ./run.sh.
+
 [!ملاحظة]
 تم بناء التطبيق بمساعدة الذكاء الاصطناعي، بينما تمت التجربة العملية على العتاد واستخراج شفرات الهكس (Hex) يدوياً بواسطة إنسان.
 
@@ -45,6 +69,27 @@ Macro Studio: Record keyboard shortcuts and mouse clicks with customizable per-s
 Live DPI Monitor: Real-time display of the active DPI stage and color.
 
 Multi-Language Support: Available in English, Arabic, Russian, and Chinese.
+
+## Installation
+
+### Option 1: From Releases (Recommended)
+1. Download the latest `.flatpak` file from the [Releases](https://github.com/bufferczd/deepcomplex-aurora/releases) page.
+2. Install and run:
+```bash
+flatpak install --user deepcomplex-v2.8.4.flatpak
+flatpak run org.deepcomplex.App
+```
+Option 2: Build from Source
+
+Requirements: git, flatpak, flatpak-builder, and the KDE 6.11 Flatpak runtime/SDK (org.kde.Platform//6.11, org.kde.Sdk//6.11).
+Bash
+
+git clone [https://github.com/bufferczd/deepcomplex-aurora.git](https://github.com/bufferczd/deepcomplex-aurora.git)
+cd deepcomplex-aurora
+chmod +x run.sh
+./run.sh
+
+    Low-RAM tip: If the build fails due to low memory, run JOBS=1 ./run.sh.
 
 [!NOTE]
 Built with AI assistance, while hardware testing and hex extraction were performed manually by a human.
