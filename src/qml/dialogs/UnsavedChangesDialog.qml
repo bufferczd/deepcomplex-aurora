@@ -7,6 +7,7 @@ ModernDialog {
     headerIcon: "document-save"
     id: unsavedDialog
     property var pendingAction: null
+    onClosed: pendingAction = null
     title: I18n.tr(mouseController.language, "unsavedTitle")
     width: Math.min((parent ? parent.width : 960) - 64, 540)
     closePolicy: Controls.Popup.CloseOnEscape
@@ -75,12 +76,10 @@ ModernDialog {
                 text: I18n.tr(mouseController.language, "unsavedDiscard")
                 icon.name: "edit-delete"
                 onClicked: {
+                    let fn = unsavedDialog.pendingAction
+                    unsavedDialog.pendingAction = null
                     unsavedDialog.close()
-                    if (unsavedDialog.pendingAction) {
-                        let fn = unsavedDialog.pendingAction
-                        unsavedDialog.pendingAction = null
-                        fn()
-                    }
+                    if (fn) fn()
                 }
             }
 

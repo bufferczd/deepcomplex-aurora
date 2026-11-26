@@ -12,6 +12,7 @@ ModernDialog {
 
     property string messageText: ""
     property var pendingResetAction: null
+    onClosed: pendingResetAction = null
 
 
     contentItem: ColumnLayout {

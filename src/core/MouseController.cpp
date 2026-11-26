@@ -306,7 +306,7 @@ void MouseController::onRunningAppsMatched(int matchedProfile, const QString &ma
                 QStringLiteral("تم التبديل تلقائياً إلى البروفايل %1 (%2) بسبب تشغيل: %3").arg(m_cfg.activeProfile + 1).arg(activeProfileName(), matchedToken),
                 QStringLiteral("Auto-switched to Profile %1 (%2) for app: %3").arg(m_cfg.activeProfile + 1).arg(activeProfileName(), matchedToken),
                 QStringLiteral("Автопереключение на Профиль %1 (%2) для: %3").arg(m_cfg.activeProfile + 1).arg(activeProfileName(), matchedToken),
-                QStringLiteral("检测到 %3 运行，已自动切换到配置文件 %1（%2）").arg(matchedToken).arg(m_cfg.activeProfile + 1).arg(activeProfileName())
+                QStringLiteral("检测到 %3 运行，已自动切换到配置文件 %1（%2）").arg(m_cfg.activeProfile + 1).arg(activeProfileName(), matchedToken)
             ), false);
             if (m_connected && m_sandbox.udevHealthy()) applyToMouse();
         }
@@ -382,7 +382,7 @@ void MouseController::setApplyOnStartup(bool enabled) {
 void MouseController::setAutoDetectDevice(bool enabled) {
     if (m_cfg.autoDetectDevice != enabled) {
         m_cfg.autoDetectDevice = enabled;
-        if (enabled) m_hotplugTimer.start();
+        if (enabled && (!SystemUtils::isRunningInFlatpak() || m_sandbox.deviceAccessAvailable())) m_hotplugTimer.start();
         else m_hotplugTimer.stop();
         saveProfilesToDisk();
         emit appSettingsChanged();
@@ -498,6 +498,7 @@ void MouseController::setUiCustomAccent(const QString &hexColor) {
 }
 
 void MouseController::setUiGlassOpacity(double opacity) {
+    if (!std::isfinite(opacity)) return;
     const double clamped = std::clamp(opacity, 0.35, 0.98);
     if (std::abs(m_cfg.uiGlassOpacity - clamped) > 0.005) { m_cfg.uiGlassOpacity = clamped; scheduleSaveToDisk(); emit appSettingsChanged(); }
 }
@@ -508,6 +509,7 @@ void MouseController::setUiCornerRadius(int radius) {
 }
 
 void MouseController::setUiGlowIntensity(double intensity) {
+    if (!std::isfinite(intensity)) return;
     const double clamped = std::clamp(intensity, 0.0, 1.0);
     if (std::abs(m_cfg.uiGlowIntensity - clamped) > 0.005) { m_cfg.uiGlowIntensity = clamped; scheduleSaveToDisk(); emit appSettingsChanged(); }
 }
@@ -524,11 +526,13 @@ void MouseController::setUiTrueBlackOled(bool enabled) {
 }
 
 void MouseController::setUiBorderWidth(double width) {
+    if (!std::isfinite(width)) return;
     const double clamped = std::clamp(width, 0.0, 3.0);
     if (std::abs(m_cfg.uiBorderWidth - clamped) > 0.02) { m_cfg.uiBorderWidth = clamped; scheduleSaveToDisk(); emit appSettingsChanged(); }
 }
 
 void MouseController::setUiAnimationSpeed(double speed) {
+    if (!std::isfinite(speed)) return;
     const double clamped = std::clamp(speed, 0.4, 2.0);
     if (std::abs(m_cfg.uiAnimationSpeed - clamped) > 0.02) { m_cfg.uiAnimationSpeed = clamped; scheduleSaveToDisk(); emit appSettingsChanged(); }
 }
@@ -563,6 +567,7 @@ void MouseController::setUiCustomBorderColor(const QString &hexColor) {
 }
 
 void MouseController::setUiBorderOpacity(double opacity) {
+    if (!std::isfinite(opacity)) return;
     const double clamped = std::clamp(opacity, 0.10, 1.0);
     if (std::abs(m_cfg.uiBorderOpacity - clamped) > 0.01) { m_cfg.uiBorderOpacity = clamped; scheduleSaveToDisk(); emit appSettingsChanged(); }
 }
@@ -702,7 +707,7 @@ void MouseController::selectProfile(int index) {
 }
 
 void MouseController::setActiveProfileName(const QString &name) {
-    QString trimmed = name.trimmed();
+    QString trimmed = name.trimmed().left(24);
     if (trimmed.isEmpty()) {
         trimmed = loc(
             QStringLiteral("بروفايل %1").arg(m_cfg.activeProfile + 1),
@@ -719,7 +724,7 @@ void MouseController::setActiveProfileName(const QString &name) {
 }
 
 void MouseController::setActiveProfileLinkedApps(const QString &apps) {
-    const QString trimmed = apps.trimmed();
+    const QString trimmed = apps.trimmed().left(512);
     if (m_cfg.profiles[m_cfg.activeProfile].linkedApps != trimmed) {
         m_cfg.profiles[m_cfg.activeProfile].linkedApps = trimmed;
         scheduleSaveToDisk();
@@ -860,7 +865,7 @@ bool MouseController::importBackup(const QUrl &fileUrl) {
     }
 
     m_sandbox.setLanguage(m_cfg.language);
-    if (m_cfg.autoDetectDevice) m_hotplugTimer.start();
+    if (m_cfg.autoDetectDevice && (!SystemUtils::isRunningInFlatpak() || m_sandbox.deviceAccessAvailable())) m_hotplugTimer.start();
     else m_hotplugTimer.stop();
 
     m_autoSwitchedActive = false;
@@ -1200,6 +1205,7 @@ bool MouseController::importSingleMacro(const QUrl &fileUrl) {
 }
 
 void MouseController::createQuickPresetInLibrary(const QString &presetId) {
+    if (m_cfg.macroLibrary.size() >= kMaxMacroLibraryLimit) return;
     QString name;
     std::vector<MacroStep> steps;
     auto addCombo = [&](uint8_t mod, uint8_t key) {

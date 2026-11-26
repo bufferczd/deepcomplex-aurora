@@ -65,6 +65,11 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="2.8.6" date="2026-11-26">
+      <description>
+        <p>Comprehensive security, concurrency, memory, and GPU audit fixes: fixed BackgroundPortal watcher race, hardened AsyncProcess stdin/cleanup, bounded process output and JSON string lengths, atomic backup import, scoped udevadm trigger to hidraw, fixed hidden QML Canvas repaints and dialog animation leaks, added Numpad HID key names, and added hardware warnings when selecting lighting modes that do not respond to custom DPI colors (Extra Mode and OFF).</p>
+      </description>
+    </release>
     <release version="2.8.4" date="2026-11-23">
       <description>
         <p>Added security risk ratings and detailed risk notes for every permission and command, fixed onboarding step navigation, added system tray opt-in hint, About card, USB hardware modalias, and GPL-3.0-or-later LICENSE file.</p>

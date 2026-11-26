@@ -421,7 +421,7 @@ Controls.ApplicationWindow {
                 // 1. Live GPU-accelerated Animated Background (natively respects sharp/rounded/extra/chamfer!)
                 AnimatedAuroraBackground {
                     anchors.fill: parent
-                    running: root.visible && !root.bootSplashActive && !startupSplash.visible && Theme.animatedUi
+                    running: root.visible && root.visibility !== Window.Minimized && !root.bootSplashActive && !startupSplash.visible && Theme.animatedUi
                     accentColor: Theme.accent
                     styleMode: Theme.backgroundStyle
                     glowStrength: Theme.glowIntensity
@@ -481,13 +481,13 @@ Controls.ApplicationWindow {
                             ctx.fill()
                         }
                         onVisibleChanged: if (visible) requestPaint()
-                        onWidthChanged: requestPaint()
-                        onHeightChanged: requestPaint()
+                        onWidthChanged: if (visible) requestPaint()
+                        onHeightChanged: if (visible) requestPaint()
                         Connections {
                             target: Theme
-                            function onEffectiveTitlebarBgChanged() { chamferTitlebarCanvas.requestPaint() }
-                            function onWindowShapeChanged() { chamferTitlebarCanvas.requestPaint() }
-                            function onCornerRadiusChanged() { chamferTitlebarCanvas.requestPaint() }
+                            function onEffectiveTitlebarBgChanged() { if (chamferTitlebarCanvas.visible) chamferTitlebarCanvas.requestPaint() }
+                            function onWindowShapeChanged() { if (chamferTitlebarCanvas.visible) chamferTitlebarCanvas.requestPaint() }
+                            function onCornerRadiusChanged() { if (chamferTitlebarCanvas.visible) chamferTitlebarCanvas.requestPaint() }
                         }
                     }
 
@@ -503,9 +503,6 @@ Controls.ApplicationWindow {
                         anchors.fill: parent
                         acceptedButtons: Qt.LeftButton
                         onDoubleClicked: root.toggleMaximize()
-                        onPressed: (mouse) => {
-                            if (mouse.button === Qt.LeftButton) root.startSystemMove()
-                        }
                     }
 
                     Rectangle {
@@ -847,7 +844,7 @@ Controls.ApplicationWindow {
                                                    : (!mouseController.deviceAccessAvailable ? "#f59e0b" : "#ef4444")
 
                                             SequentialAnimation on opacity {
-                                                running: root.visible && Theme.animatedUi && mouseController.connected
+                                                running: root.visible && root.visibility !== Window.Minimized && !root.bootSplashActive && !startupSplash.visible && Theme.animatedUi && mouseController.connected
                                                 loops: Animation.Infinite
                                                 NumberAnimation { from: 1.0; to: 0.35; duration: 1200; easing.type: Easing.InOutSine }
                                                 NumberAnimation { from: 0.35; to: 1.0; duration: 1200; easing.type: Easing.InOutSine }
@@ -1097,7 +1094,7 @@ Controls.ApplicationWindow {
                 borderAlpha: Theme.borderOpacity
                 edgeGlow: Theme.windowEdgeGlow
                 isMaximized: root.isMaximized
-                animate: root.visible && Theme.animatedUi
+                animate: root.visible && root.visibility !== Window.Minimized && Theme.animatedUi
                 z: 90
             }
 

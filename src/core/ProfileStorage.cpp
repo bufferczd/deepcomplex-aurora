@@ -4,6 +4,7 @@
 
 #include <QColor>
 #include <QDir>
+#include <QFile>
 #include <QJsonDocument>
 #include <QSaveFile>
 #include <QStandardPaths>
@@ -36,6 +37,7 @@ bool writeJsonAtomic(const QString &path, const QJsonObject &obj, bool allowDire
 QString configFilePath() {
     const QString dir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     QDir().mkpath(dir);
+    QFile::setPermissions(dir, QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner);
     return dir + QStringLiteral("/profiles.json");
 }
 
@@ -128,7 +130,7 @@ std::vector<MacroStep> parseMacroStepsFromJson(const QJsonArray &stepsArr) {
         step.hidCode = static_cast<uint8_t>(std::clamp(sObj.value(QStringLiteral("hidCode")).toInt(0), 0, 255));
         step.isDown = sObj.value(QStringLiteral("isDown")).toBool(true);
         step.delayMs = std::clamp(sObj.value(QStringLiteral("delayMs")).toInt(24), 8, 1016);
-        const QString lbl = sObj.value(QStringLiteral("label")).toString();
+        const QString lbl = sObj.value(QStringLiteral("label")).toString().trimmed().left(48);
         step.label = (lbl.isEmpty() ? HidKeyMap::hidUsageName(step.hidCode) : lbl).toStdString();
         if (step.hidCode != 0) out.push_back(std::move(step));
     }
@@ -145,7 +147,7 @@ std::vector<MacroStep> parseMacroStepsFromVariant(const QVariantList &steps) {
         step.hidCode = static_cast<uint8_t>(std::clamp(m.value(QStringLiteral("hidCode")).toInt(), 0, 255));
         step.isDown = m.value(QStringLiteral("isDown"), true).toBool();
         step.delayMs = std::clamp(m.value(QStringLiteral("delayMs"), 24).toInt(), 8, 1016);
-        const QString lbl = m.value(QStringLiteral("label")).toString();
+        const QString lbl = m.value(QStringLiteral("label")).toString().trimmed().left(48);
         step.label = (lbl.isEmpty() ? HidKeyMap::hidUsageName(step.hidCode) : lbl).toStdString();
         if (step.hidCode != 0) out.push_back(std::move(step));
     }
@@ -486,9 +488,9 @@ bool applyFullJson(const QJsonObject &root, AppConfigData &cfg) {
     const QJsonArray arr = root.value(QStringLiteral("profiles")).toArray();
     for (int i = 0; i < std::min<int>(AppConfigData::kProfileCount, arr.size()); ++i) {
         const QJsonObject pObj = arr[i].toObject();
-        const QString savedName = pObj.value(QStringLiteral("name")).toString().trimmed();
+        const QString savedName = pObj.value(QStringLiteral("name")).toString().trimmed().left(24);
         if (!savedName.isEmpty()) cfg.profiles[i].name = savedName;
-        cfg.profiles[i].linkedApps = pObj.value(QStringLiteral("linkedApps")).toString().trimmed();
+        cfg.profiles[i].linkedApps = pObj.value(QStringLiteral("linkedApps")).toString().trimmed().left(512);
         if (pObj.contains(QStringLiteral("state")) && pObj.value(QStringLiteral("state")).isObject()) {
             cfg.profiles[i].state = jsonToState(pObj.value(QStringLiteral("state")).toObject(), cfg.profiles[i].state);
         }
@@ -506,9 +508,9 @@ bool applyFullJson(const QJsonObject &root, AppConfigData &cfg) {
             if (++importedCount > kMaxMacroLibraryEntries) break;
             const QJsonObject mObj = val.toObject();
             NamedMacro nm;
-            nm.id = mObj.value(QStringLiteral("id")).toString();
+            nm.id = mObj.value(QStringLiteral("id")).toString().trimmed().left(64);
             if (nm.id.isEmpty()) nm.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
-            nm.name = mObj.value(QStringLiteral("name")).toString().trimmed();
+            nm.name = mObj.value(QStringLiteral("name")).toString().trimmed().left(80);
             if (nm.name.isEmpty()) nm.name = QStringLiteral("Macro");
             nm.macro.repeatMode = std::clamp(mObj.value(QStringLiteral("repeatMode")).toInt(0), 0, 2);
             nm.macro.repeatCount = std::clamp(mObj.value(QStringLiteral("repeatCount")).toInt(1), 1, 255);
@@ -538,7 +540,11 @@ bool importBackup(const QString &localPath, AppConfigData &cfg) {
     QByteArray raw;
     if (!SystemUtils::readRegularFileBounded(localPath, kMaxBackupBytes, raw)) return false;
     const QJsonDocument doc = QJsonDocument::fromJson(raw);
-    return doc.isObject() && applyFullJson(doc.object(), cfg);
+    if (!doc.isObject()) return false;
+    AppConfigData candidate = cfg;
+    if (!applyFullJson(doc.object(), candidate)) return false;
+    cfg = std::move(candidate);
+    return true;
 }
 
 bool exportSingleMacro(const QString &localPath, const NamedMacro &macro) {

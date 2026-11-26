@@ -94,13 +94,13 @@ void runSafeAsyncProcess(QObject *owner,
         *settled = true;
         if (proc->state() != QProcess::NotRunning) {
             proc->kill();
-            if (proc->waitForFinished(250)) proc->deleteLater();
-        } else {
-            proc->deleteLater();
+            proc->waitForFinished(250);
         }
+        proc->deleteLater();
         if (safeOwner) (*failureCb)();
     });
 
+    proc->setStandardInputFile(QProcess::nullDevice());
     timer->start();
     proc->start(program, args);
 }

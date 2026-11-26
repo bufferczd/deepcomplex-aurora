@@ -98,13 +98,13 @@ Controls.Dialog {
                 ctx.fill()
             }
             onVisibleChanged: if (visible) requestPaint()
-            onWidthChanged: requestPaint()
-            onHeightChanged: requestPaint()
+            onWidthChanged: if (visible) requestPaint()
+            onHeightChanged: if (visible) requestPaint()
             Connections {
                 target: Theme
-                function onDialogBgChanged() { chamferDialogBg.requestPaint() }
-                function onWindowShapeChanged() { chamferDialogBg.requestPaint() }
-                function onCornerRadiusChanged() { chamferDialogBg.requestPaint() }
+                function onDialogBgChanged() { if (chamferDialogBg.visible) chamferDialogBg.requestPaint() }
+                function onWindowShapeChanged() { if (chamferDialogBg.visible) chamferDialogBg.requestPaint() }
+                function onCornerRadiusChanged() { if (chamferDialogBg.visible) chamferDialogBg.requestPaint() }
             }
         }
 
@@ -117,6 +117,7 @@ Controls.Dialog {
             shapeMode: Theme.windowShape
             borderAlpha: Theme.borderOpacity
             edgeGlow: Theme.windowEdgeGlow
+            animate: dlg.visible && Theme.animatedUi
         }
     }
 

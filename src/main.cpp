@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
 #ifdef DEEPCOMPLEX_VERSION
     QApplication::setApplicationVersion(QStringLiteral(DEEPCOMPLEX_VERSION));
 #else
-    QApplication::setApplicationVersion(QStringLiteral("2.8.4"));
+    QApplication::setApplicationVersion(QStringLiteral("2.8.6"));
 #endif
     if (QApplication::arguments().contains(QStringLiteral("--version")) ||
         QApplication::arguments().contains(QStringLiteral("-v"))) {

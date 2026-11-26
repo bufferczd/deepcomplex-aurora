@@ -21,6 +21,13 @@ ModernDialog {
         LayoutMirroring.childrenInherit: true
         spacing: Kirigami.Units.mediumSpacing
 
+        Kirigami.InlineMessage {
+            Layout.fillWidth: true
+            visible: true
+            type: Kirigami.MessageType.Warning
+            text: I18n.tr(mouseController.language, "dpiColorWarnExtra")
+        }
+
         Controls.Label {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
@@ -51,10 +58,11 @@ ModernDialog {
                 anchors.fill: parent
 
                 property var cols: mouseController.extraModeColors
-                onColsChanged: requestPaint()
-                onWidthChanged: requestPaint()
-                onHeightChanged: requestPaint()
-                Component.onCompleted: requestPaint()
+                onColsChanged: if (visible) requestPaint()
+                onWidthChanged: if (visible) requestPaint()
+                onHeightChanged: if (visible) requestPaint()
+                onVisibleChanged: if (visible) requestPaint()
+                Component.onCompleted: if (visible) requestPaint()
 
                 function drawRoundedRect(ctx, x, y, w, h, r) {
                     ctx.beginPath()

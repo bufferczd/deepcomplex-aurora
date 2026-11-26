@@ -60,7 +60,7 @@ Item {
         renderStrategy: Canvas.Cooperative
 
         property real hueShift: 0.0
-        onHueShiftChanged: requestPaint()
+        onHueShiftChanged: if (visible) requestPaint()
 
         NumberAnimation on hueShift {
             running: frameRoot.visible && frameRoot.animate && frameRoot.styleMode === "rainbow"
@@ -109,10 +109,10 @@ Item {
         }
 
         onPaint: {
+            if (!visible || width < 4 || height < 4) return
             var ctx = getContext("2d")
             ctx.reset()
             ctx.clearRect(0, 0, width, height)
-            if (width < 4 || height < 4) return
 
             var bw = Math.max(1.0, frameRoot.frameWidth)
             var inset = bw * 0.5
@@ -157,27 +157,27 @@ Item {
             ctx.stroke()
         }
 
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (visible) requestPaint()
+        onHeightChanged: if (visible) requestPaint()
         onVisibleChanged: if (visible) requestPaint()
         Connections {
             target: frameRoot
-            function onFrameRadiusChanged() { fancyBorderCanvas.requestPaint() }
-            function onFrameWidthChanged() { fancyBorderCanvas.requestPaint() }
-            function onStyleModeChanged() { fancyBorderCanvas.requestPaint() }
-            function onShapeModeChanged() { fancyBorderCanvas.requestPaint() }
-            function onBorderAlphaChanged() { fancyBorderCanvas.requestPaint() }
-            function onEdgeGlowChanged() { fancyBorderCanvas.requestPaint() }
-            function onIsMaximizedChanged() { fancyBorderCanvas.requestPaint() }
+            function onFrameRadiusChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onFrameWidthChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onStyleModeChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onShapeModeChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onBorderAlphaChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onEdgeGlowChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onIsMaximizedChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
         }
         Connections {
             target: Theme
-            function onAccentChanged() { fancyBorderCanvas.requestPaint() }
-            function onOrbSecondaryChanged() { fancyBorderCanvas.requestPaint() }
-            function onCustomBorderColorChanged() { fancyBorderCanvas.requestPaint() }
-            function onCornerRadiusChanged() { fancyBorderCanvas.requestPaint() }
-            function onGlowIntensityChanged() { fancyBorderCanvas.requestPaint() }
+            function onAccentChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onOrbSecondaryChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onCustomBorderColorChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onCornerRadiusChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
+            function onGlowIntensityChanged() { if (fancyBorderCanvas.visible) fancyBorderCanvas.requestPaint() }
         }
-        Component.onCompleted: requestPaint()
+        Component.onCompleted: if (visible) requestPaint()
     }
 }

@@ -128,6 +128,19 @@ int keyEventToHidUsage(int qtKey, int nativeScanCode) {
         case 68:  return 0x43; // F10
         case 69:  return 0x53; // NumLock
         case 70:  return 0x47; // ScrollLock
+        case 71:  return 0x5F; // KP 7
+        case 72:  return 0x60; // KP 8
+        case 73:  return 0x61; // KP 9
+        case 74:  return 0x56; // KP -
+        case 75:  return 0x5C; // KP 4
+        case 76:  return 0x5D; // KP 5
+        case 77:  return 0x5E; // KP 6
+        case 78:  return 0x57; // KP +
+        case 79:  return 0x59; // KP 1
+        case 80:  return 0x5A; // KP 2
+        case 81:  return 0x5B; // KP 3
+        case 82:  return 0x62; // KP 0
+        case 83:  return 0x63; // KP .
         case 87:  return 0x44; // F11
         case 88:  return 0x45; // F12
         case 96:  return 0x58; // KP Enter
@@ -192,6 +205,22 @@ QString hidUsageName(int hidCode) {
     case 0x51: return QStringLiteral("Down");
     case 0x52: return QStringLiteral("Up");
     case 0x53: return QStringLiteral("NumLock");
+    case 0x54: return QStringLiteral("KP /");
+    case 0x55: return QStringLiteral("KP *");
+    case 0x56: return QStringLiteral("KP -");
+    case 0x57: return QStringLiteral("KP +");
+    case 0x58: return QStringLiteral("KP Enter");
+    case 0x59: return QStringLiteral("KP 1");
+    case 0x5A: return QStringLiteral("KP 2");
+    case 0x5B: return QStringLiteral("KP 3");
+    case 0x5C: return QStringLiteral("KP 4");
+    case 0x5D: return QStringLiteral("KP 5");
+    case 0x5E: return QStringLiteral("KP 6");
+    case 0x5F: return QStringLiteral("KP 7");
+    case 0x60: return QStringLiteral("KP 8");
+    case 0x61: return QStringLiteral("KP 9");
+    case 0x62: return QStringLiteral("KP 0");
+    case 0x63: return QStringLiteral("KP .");
     case 0xE0: return QStringLiteral("Ctrl");
     case 0xE1: return QStringLiteral("Shift");
     case 0xE2: return QStringLiteral("Alt");

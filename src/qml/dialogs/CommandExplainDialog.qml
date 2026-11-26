@@ -68,13 +68,16 @@ ModernDialog {
                 anchors.margins: 8
                 clip: true
                 spacing: 12
-                model: mouseController.commandExplanations(
-                    commandExplainDialog.showDevice,
-                    commandExplainDialog.showTray,
-                    commandExplainDialog.showHost,
-                    commandExplainDialog.showUdev,
-                    commandExplainDialog.showReset
-                )
+                model: {
+                    let _lang = mouseController.language
+                    return mouseController.commandExplanations(
+                        commandExplainDialog.showDevice,
+                        commandExplainDialog.showTray,
+                        commandExplainDialog.showHost,
+                        commandExplainDialog.showUdev,
+                        commandExplainDialog.showReset
+                    )
+                }
 
                 delegate: Rectangle {
                     width: ListView.view.width

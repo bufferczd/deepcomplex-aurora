@@ -154,33 +154,33 @@ Controls.Button {
             property bool hovProp: control.hovered
             property bool downProp: control.down
 
-            onFillPropChanged: requestPaint()
-            onBorderPropChanged: requestPaint()
-            onSModeChanged: requestPaint()
-            onVModeChanged: requestPaint()
-            onActivePropChanged: requestPaint()
-            onHovPropChanged: requestPaint()
-            onDownPropChanged: requestPaint()
-            onWidthChanged: requestPaint()
-            onHeightChanged: requestPaint()
+            onFillPropChanged: if (visible) requestPaint()
+            onBorderPropChanged: if (visible) requestPaint()
+            onSModeChanged: if (visible) requestPaint()
+            onVModeChanged: if (visible) requestPaint()
+            onActivePropChanged: if (visible) requestPaint()
+            onHovPropChanged: if (visible) requestPaint()
+            onDownPropChanged: if (visible) requestPaint()
+            onWidthChanged: if (visible) requestPaint()
+            onHeightChanged: if (visible) requestPaint()
             onVisibleChanged: if (visible) requestPaint()
-            Component.onCompleted: requestPaint()
+            Component.onCompleted: if (visible) requestPaint()
 
             Connections {
                 target: Theme
-                function onAccentChanged() { shapeCanvas.requestPaint() }
-                function onOrbSecondaryChanged() { shapeCanvas.requestPaint() }
-                function onCornerRadiusChanged() { shapeCanvas.requestPaint() }
-                function onBorderWidthChanged() { shapeCanvas.requestPaint() }
-                function onButtonShapeChanged() { shapeCanvas.requestPaint() }
-                function onButtonStyleChanged() { shapeCanvas.requestPaint() }
+                function onAccentChanged() { if (shapeCanvas.visible) shapeCanvas.requestPaint() }
+                function onOrbSecondaryChanged() { if (shapeCanvas.visible) shapeCanvas.requestPaint() }
+                function onCornerRadiusChanged() { if (shapeCanvas.visible) shapeCanvas.requestPaint() }
+                function onBorderWidthChanged() { if (shapeCanvas.visible) shapeCanvas.requestPaint() }
+                function onButtonShapeChanged() { if (shapeCanvas.visible) shapeCanvas.requestPaint() }
+                function onButtonStyleChanged() { if (shapeCanvas.visible) shapeCanvas.requestPaint() }
             }
 
             onPaint: {
+                if (!visible || width < 4 || height < 4) return
                 var ctx = getContext("2d")
                 ctx.reset()
                 ctx.clearRect(0, 0, width, height)
-                if (width < 4 || height < 4) return
 
                 var bw = control.computedBorderWidth
                 var pad = bw * 0.5 + 0.5

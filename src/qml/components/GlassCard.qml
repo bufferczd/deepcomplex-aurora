@@ -80,29 +80,29 @@ Item {
         property bool glowProp: card.activeGlow
         property bool hovProp: cardHover.hovered
 
-        onFillPropChanged: requestPaint()
-        onAccentPropChanged: requestPaint()
-        onModePropChanged: requestPaint()
-        onGlowPropChanged: requestPaint()
-        onHovPropChanged: requestPaint()
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onFillPropChanged: if (visible) requestPaint()
+        onAccentPropChanged: if (visible) requestPaint()
+        onModePropChanged: if (visible) requestPaint()
+        onGlowPropChanged: if (visible) requestPaint()
+        onHovPropChanged: if (visible) requestPaint()
+        onWidthChanged: if (visible) requestPaint()
+        onHeightChanged: if (visible) requestPaint()
         onVisibleChanged: if (visible) requestPaint()
-        Component.onCompleted: requestPaint()
+        Component.onCompleted: if (visible) requestPaint()
 
         Connections {
             target: Theme
-            function onOrbSecondaryChanged() { cardCanvas.requestPaint() }
-            function onCornerRadiusChanged() { cardCanvas.requestPaint() }
-            function onBorderWidthChanged() { cardCanvas.requestPaint() }
-            function onGlowIntensityChanged() { cardCanvas.requestPaint() }
+            function onOrbSecondaryChanged() { if (cardCanvas.visible) cardCanvas.requestPaint() }
+            function onCornerRadiusChanged() { if (cardCanvas.visible) cardCanvas.requestPaint() }
+            function onBorderWidthChanged() { if (cardCanvas.visible) cardCanvas.requestPaint() }
+            function onGlowIntensityChanged() { if (cardCanvas.visible) cardCanvas.requestPaint() }
         }
 
         onPaint: {
+            if (!visible || width < 6 || height < 6) return
             var ctx = getContext("2d")
             ctx.reset()
             ctx.clearRect(0, 0, width, height)
-            if (width < 6 || height < 6) return
 
             var bw = Math.max(1.0, card.resolvedBorderWidth)
             var pad = bw * 0.5 + 0.5

@@ -81,7 +81,8 @@ void BackgroundPortal::requestAutostart(bool enable, const QString &language) {
     m_requestedState = enable;
     emit busyChanged();
 
-    const QString token = QStringLiteral("deepcomplex_bg_%1").arg(++m_tokenCounter);
+    const quint32 reqToken = ++m_tokenCounter;
+    const QString token = QStringLiteral("deepcomplex_bg_%1").arg(reqToken);
     QString sender = bus.baseService();
     if (sender.startsWith(QLatin1Char(':'))) sender.remove(0, 1);
     sender.replace(QLatin1Char('.'), QLatin1Char('_'));
@@ -123,9 +124,9 @@ void BackgroundPortal::requestAutostart(bool enable, const QString &language) {
     m_timeoutTimer.start();
     QDBusPendingCall pending = bus.asyncCall(msg);
     auto *watcher = new QDBusPendingCallWatcher(pending, this);
-    connect(watcher, &QDBusPendingCallWatcher::finished, this, [this, watcher, expectedPath]() {
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, [this, watcher, expectedPath, reqToken]() {
         watcher->deleteLater();
-        if (m_shuttingDown || !m_busy) return;
+        if (m_shuttingDown || !m_busy || reqToken != m_tokenCounter) return;
 
         QDBusPendingReply<QDBusObjectPath> reply = *watcher;
         if (reply.isError()) {
@@ -168,7 +169,7 @@ void BackgroundPortal::requestAutostart(bool enable, const QString &language) {
 }
 
 void BackgroundPortal::onPortalResponse(uint response, const QVariantMap &results) {
-    if (m_shuttingDown) return;
+    if (m_shuttingDown || !m_busy) return;
     const bool requested = m_requestedState;
     cleanupRequest();
     emit busyChanged();

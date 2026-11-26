@@ -52,6 +52,7 @@ ModernDialog {
                 spacing: 6
                 model: mouseController.macroLibrary
                 delegate: Controls.ItemDelegate {
+                    id: macroPickDelegate
                     width: ListView.view.width
                     height: 54
                     onClicked: {
@@ -61,11 +62,11 @@ ModernDialog {
 
                     background: Rectangle {
                         radius: 6
-                        color: parent.hovered
+                        color: macroPickDelegate.hovered
                                ? Qt.rgba(0.0, 0.9, 0.45, 0.18)
                                : Kirigami.Theme.alternateBackgroundColor
                         border.width: 1
-                        border.color: parent.hovered ? Theme.accent : Kirigami.Theme.disabledTextColor
+                        border.color: macroPickDelegate.hovered ? Theme.accent : Kirigami.Theme.disabledTextColor
                     }
 
                     contentItem: RowLayout {

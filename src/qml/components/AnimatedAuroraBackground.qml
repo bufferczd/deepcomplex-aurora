@@ -14,20 +14,20 @@ Item {
     property color smoothAccent: accentColor
     Behavior on smoothAccent { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
     onSmoothAccentChanged: {
-        orbPrimary.requestPaint()
-        waveCanvas.requestPaint()
+        if (orbPrimary.visible) orbPrimary.requestPaint()
+        if (waveCanvas.visible) waveCanvas.requestPaint()
     }
 
     property color smoothOrb2: Theme.orbSecondary
     Behavior on smoothOrb2 { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
     onSmoothOrb2Changed: {
-        orbSecondary.requestPaint()
-        waveCanvas.requestPaint()
+        if (orbSecondary.visible) orbSecondary.requestPaint()
+        if (waveCanvas.visible) waveCanvas.requestPaint()
     }
 
     property color smoothOrb3: Theme.orbTertiary
     Behavior on smoothOrb3 { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-    onSmoothOrb3Changed: orbTertiary.requestPaint()
+    onSmoothOrb3Changed: if (orbTertiary.visible) orbTertiary.requestPaint()
 
     function traceClipPath(ctx, w, h) {
         ctx.beginPath()
@@ -105,17 +105,17 @@ Item {
             ctx.fill()
         }
         onVisibleChanged: if (visible) requestPaint()
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (visible) requestPaint()
+        onHeightChanged: if (visible) requestPaint()
         Connections {
             target: Theme
-            function onBgTopChanged() { chamferBaseCanvas.requestPaint() }
-            function onBgMidChanged() { chamferBaseCanvas.requestPaint() }
-            function onBgBottomChanged() { chamferBaseCanvas.requestPaint() }
-            function onEffectiveOledChanged() { chamferBaseCanvas.requestPaint() }
-            function onBackgroundStyleChanged() { chamferBaseCanvas.requestPaint() }
-            function onCornerRadiusChanged() { chamferBaseCanvas.requestPaint() }
-            function onWindowShapeChanged() { chamferBaseCanvas.requestPaint() }
+            function onBgTopChanged() { if (chamferBaseCanvas.visible) chamferBaseCanvas.requestPaint() }
+            function onBgMidChanged() { if (chamferBaseCanvas.visible) chamferBaseCanvas.requestPaint() }
+            function onBgBottomChanged() { if (chamferBaseCanvas.visible) chamferBaseCanvas.requestPaint() }
+            function onEffectiveOledChanged() { if (chamferBaseCanvas.visible) chamferBaseCanvas.requestPaint() }
+            function onBackgroundStyleChanged() { if (chamferBaseCanvas.visible) chamferBaseCanvas.requestPaint() }
+            function onCornerRadiusChanged() { if (chamferBaseCanvas.visible) chamferBaseCanvas.requestPaint() }
+            function onWindowShapeChanged() { if (chamferBaseCanvas.visible) chamferBaseCanvas.requestPaint() }
         }
     }
 
@@ -138,6 +138,7 @@ Item {
             y: bgRoot.height * driftY - height * 0.5
 
             onPaint: {
+                if (!visible || width < 4 || height < 4) return
                 var ctx = getContext("2d")
                 ctx.clearRect(0, 0, width, height)
                 var cx = width * 0.5, cy = height * 0.5, r = width * 0.5
@@ -149,8 +150,9 @@ Item {
                 ctx.fillStyle = g
                 ctx.fillRect(0, 0, width, height)
             }
-            Component.onCompleted: requestPaint()
-            onWidthChanged: requestPaint()
+            onVisibleChanged: if (visible) requestPaint()
+            Component.onCompleted: if (visible) requestPaint()
+            onWidthChanged: if (visible) requestPaint()
 
             ParallelAnimation {
                 running: bgRoot.running && (bgRoot.styleMode === "aurora" || bgRoot.styleMode === "grid")
@@ -183,6 +185,7 @@ Item {
             y: bgRoot.height * driftY - height * 0.5
 
             onPaint: {
+                if (!visible || width < 4 || height < 4) return
                 var ctx = getContext("2d")
                 ctx.clearRect(0, 0, width, height)
                 var cx = width * 0.5, cy = height * 0.5, r = width * 0.5
@@ -194,8 +197,9 @@ Item {
                 ctx.fillStyle = g
                 ctx.fillRect(0, 0, width, height)
             }
-            Component.onCompleted: requestPaint()
-            onWidthChanged: requestPaint()
+            onVisibleChanged: if (visible) requestPaint()
+            Component.onCompleted: if (visible) requestPaint()
+            onWidthChanged: if (visible) requestPaint()
 
             ParallelAnimation {
                 running: bgRoot.running && bgRoot.styleMode === "aurora"
@@ -225,6 +229,7 @@ Item {
             y: bgRoot.height * driftY - height * 0.5
 
             onPaint: {
+                if (!visible || width < 4 || height < 4) return
                 var ctx = getContext("2d")
                 ctx.clearRect(0, 0, width, height)
                 var cx = width * 0.5, cy = height * 0.5, r = width * 0.5
@@ -236,8 +241,9 @@ Item {
                 ctx.fillStyle = g
                 ctx.fillRect(0, 0, width, height)
             }
-            Component.onCompleted: requestPaint()
-            onWidthChanged: requestPaint()
+            onVisibleChanged: if (visible) requestPaint()
+            Component.onCompleted: if (visible) requestPaint()
+            onWidthChanged: if (visible) requestPaint()
 
             ParallelAnimation {
                 running: bgRoot.running && bgRoot.styleMode === "aurora"
@@ -263,7 +269,7 @@ Item {
         renderStrategy: Canvas.Cooperative
 
         property real phase: 0.0
-        onPhaseChanged: requestPaint()
+        onPhaseChanged: if (visible) requestPaint()
 
         NumberAnimation on phase {
             running: bgRoot.running && bgRoot.styleMode === "waves"
@@ -308,13 +314,13 @@ Item {
             }
             ctx.restore()
         }
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (visible) requestPaint()
+        onHeightChanged: if (visible) requestPaint()
         onVisibleChanged: if (visible) requestPaint()
         Connections {
             target: bgRoot
-            function onCornerRadiusChanged() { waveCanvas.requestPaint() }
-            function onChamferedChanged() { waveCanvas.requestPaint() }
+            function onCornerRadiusChanged() { if (waveCanvas.visible) waveCanvas.requestPaint() }
+            function onChamferedChanged() { if (waveCanvas.visible) waveCanvas.requestPaint() }
         }
     }
 
@@ -353,22 +359,22 @@ Item {
             }
             ctx.restore()
         }
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (visible) requestPaint()
+        onHeightChanged: if (visible) requestPaint()
         onVisibleChanged: if (visible) requestPaint()
         Connections {
             target: bgRoot
-            function onCornerRadiusChanged() { gridOverlay.requestPaint() }
-            function onChamferedChanged() { gridOverlay.requestPaint() }
+            function onCornerRadiusChanged() { if (gridOverlay.visible) gridOverlay.requestPaint() }
+            function onChamferedChanged() { if (gridOverlay.visible) gridOverlay.requestPaint() }
         }
         Connections {
             target: Theme
-            function onIsLightChanged() { gridOverlay.requestPaint() }
-            function onBackgroundStyleChanged() { gridOverlay.requestPaint() }
-            function onWindowShapeChanged() { gridOverlay.requestPaint() }
-            function onCornerRadiusChanged() { gridOverlay.requestPaint() }
+            function onIsLightChanged() { if (gridOverlay.visible) gridOverlay.requestPaint() }
+            function onBackgroundStyleChanged() { if (gridOverlay.visible) gridOverlay.requestPaint() }
+            function onWindowShapeChanged() { if (gridOverlay.visible) gridOverlay.requestPaint() }
+            function onCornerRadiusChanged() { if (gridOverlay.visible) gridOverlay.requestPaint() }
         }
-        Component.onCompleted: requestPaint()
+        Component.onCompleted: if (visible) requestPaint()
     }
 
     // Top edge luminous shimmer sweep (strictly inset inside top corners!)

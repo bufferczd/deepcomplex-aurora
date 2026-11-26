@@ -50,6 +50,7 @@ ModernDialog {
         capturing = false
         lastEventMs = 0
         let data = mouseController.getLibraryMacro(idx)
+        if (!data || !data.id) return
         editName = data.name || ""
         editRepeatMode = data.repeatMode !== undefined ? data.repeatMode : 0
         editRepeatCount = data.repeatCount !== undefined ? data.repeatCount : 1
@@ -131,6 +132,7 @@ ModernDialog {
             Controls.TextField {
                 id: macroNameInput
                 Layout.fillWidth: true
+                maximumLength: 80
                 enabled: !macroDialog.capturing
                 placeholderText: I18n.tr(mouseController.language, "macroNamePh")
                 onTextEdited: macroDialog.editName = text
@@ -339,7 +341,7 @@ ModernDialog {
                 visible: macroDialog.editRepeatMode === 0
                 enabled: !macroDialog.capturing
                 from: 1
-                to: 99
+                to: 255
                 Component.onCompleted: value = macroDialog.editRepeatCount
                 onValueModified: macroDialog.editRepeatCount = value
             }

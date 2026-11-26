@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 cd "$(dirname "$0")"
 
 # Limit parallel build jobs safely on low-RAM machines to avoid OOM (exit code 137)
 if [ -z "${JOBS:-}" ]; then
-    AVAIL_KB=$(awk '/MemAvailable/ {print $2}' /proc/meminfo 2>/dev/null || echo 2000000)
+    AVAIL_KB=$(awk '/MemAvailable/ {print $2; exit}' /proc/meminfo 2>/dev/null || true)
+    AVAIL_KB=${AVAIL_KB:-2000000}
     if [ "$AVAIL_KB" -lt 4500000 ]; then
         JOBS=1
     elif [ "$AVAIL_KB" -lt 9000000 ]; then
@@ -12,6 +13,11 @@ if [ -z "${JOBS:-}" ]; then
     else
         JOBS=3
     fi
+fi
+
+if ! [[ "$JOBS" =~ ^[1-9][0-9]*$ ]]; then
+    echo "Invalid JOBS value: $JOBS (must be a positive integer)" >&2
+    exit 1
 fi
 
 flatpak-builder --force-clean --jobs="$JOBS" --repo=repo build-dir org.deepcomplex.App.json

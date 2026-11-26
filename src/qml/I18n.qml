@@ -10,6 +10,7 @@ QtObject {
     function isStaticMode(mode) { return mode === 0x02 || mode === 0x0D }
     function isReactiveMode(mode) { return mode === 0x0C }
     function isExtraMode(mode) { return mode === 0x09 }
+    function isDpiColorUnsupportedMode(mode) { return mode === 0x09 || mode === 0x0D }
     function isMacroCode(code) { return code === 0x0D || code === 0x0E }
 
     function buildLedModeModel(lang, showHidden, showHex) {

@@ -204,6 +204,7 @@ Controls.ScrollView {
                     Controls.TextField {
                         id: linkedAppsField
                         Layout.fillWidth: true
+                        maximumLength: 512
                         placeholderText: I18n.tr(mouseController.language, "linkedAppsPh")
                         Component.onCompleted: text = mouseController.activeProfileLinkedApps
                         Connections {
@@ -295,6 +296,22 @@ Controls.ScrollView {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: Kirigami.Units.smallSpacing
+
+                Kirigami.InlineMessage {
+                    Layout.fillWidth: true
+                    visible: I18n.isDpiColorUnsupportedMode(mouseController.ledMode)
+                    type: Kirigami.MessageType.Warning
+                    text: I18n.isExtraMode(mouseController.ledMode)
+                          ? I18n.tr(mouseController.language, "dpiColorWarnExtra")
+                          : I18n.tr(mouseController.language, "dpiColorWarnOff")
+                    actions: [
+                        Kirigami.Action {
+                            text: I18n.tr(mouseController.language, "switchToStaticBtn")
+                            icon.name: "color-management"
+                            onTriggered: mouseController.ledMode = 0x02
+                        }
+                    ]
+                }
 
                 Repeater {
                     model: 6
@@ -439,6 +456,22 @@ Controls.ScrollView {
                             duration: Math.max(1800, 6200 - mouseController.ledSpeed * 820)
                         }
                     }
+                }
+
+                Kirigami.InlineMessage {
+                    Layout.fillWidth: true
+                    visible: I18n.isDpiColorUnsupportedMode(mouseController.ledMode)
+                    type: Kirigami.MessageType.Warning
+                    text: I18n.isExtraMode(mouseController.ledMode)
+                          ? I18n.tr(mouseController.language, "dpiColorWarnExtra")
+                          : I18n.tr(mouseController.language, "dpiColorWarnOff")
+                    actions: [
+                        Kirigami.Action {
+                            text: I18n.tr(mouseController.language, "switchToStaticBtn")
+                            icon.name: "color-management"
+                            onTriggered: mouseController.ledMode = 0x02
+                        }
+                    ]
                 }
 
                 GlassCard {

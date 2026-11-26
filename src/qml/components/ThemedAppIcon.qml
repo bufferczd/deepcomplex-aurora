@@ -16,8 +16,8 @@ Item {
     Behavior on smoothAccent {
         ColorAnimation { duration: Theme.animatedUi ? 360 : 0; easing.type: Easing.InOutQuad }
     }
-    onSmoothAccentChanged: iconCanvas.requestPaint()
-    onLightSurfaceChanged: iconCanvas.requestPaint()
+    onSmoothAccentChanged: if (iconCanvas.visible) iconCanvas.requestPaint()
+    onLightSurfaceChanged: if (iconCanvas.visible) iconCanvas.requestPaint()
 
     Canvas {
         id: iconCanvas
@@ -25,6 +25,7 @@ Item {
         renderStrategy: Canvas.Cooperative
 
         onPaint: {
+            if (!visible || width < 4 || height < 4) return
             var ctx = getContext("2d")
             ctx.reset()
             ctx.clearRect(0, 0, width, height)

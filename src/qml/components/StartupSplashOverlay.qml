@@ -84,8 +84,8 @@ Item {
             ctx.fill()
         }
         onVisibleChanged: if (visible) requestPaint()
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (visible) requestPaint()
+        onHeightChanged: if (visible) requestPaint()
     }
 
     // PS4-style volumetric light wave + drifting luminous particles + wordmark light sweep
@@ -96,8 +96,8 @@ Item {
 
         property real t: splash.animTime
         onTChanged: if (visible) requestPaint()
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (visible) requestPaint()
+        onHeightChanged: if (visible) requestPaint()
         onVisibleChanged: if (visible) requestPaint()
 
         // Deterministic particle field (zero allocations per frame)

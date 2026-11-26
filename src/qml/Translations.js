@@ -429,6 +429,9 @@ const dict = {
             copyWebsiteBtn: "نسخ الرابط",
             websiteCopiedMsg: "تم النسخ",
             sidebarWebsiteTip: "صفحة المشروع على GitHub",
+            dpiColorWarnExtra: "تحذير عتادي: وضع Extra Mode لا يستجيب لألوان DPI المخصصة في شريحة الماوس (يعتمد على ألوان المناطق الست فقط). لإظهار ألوان DPI المخصصة على الماوس اختر وضعاً آخر مثل الثابت (Constantly).",
+            dpiColorWarnOff: "تحذير: وضع إطفاء الإضاءة (OFF) لا يعرض ألوان DPI المخصصة على الماوس طالما الإضاءة مطفأة.",
+            switchToStaticBtn: "التبديل للوضع الثابت",
         },
         en: {
             settingsBtn: "Settings",
@@ -854,6 +857,9 @@ const dict = {
             copyWebsiteBtn: "Copy Link",
             websiteCopiedMsg: "Copied",
             sidebarWebsiteTip: "Project GitHub Page",
+            dpiColorWarnExtra: "Hardware warning: Extra Mode does not respond to custom DPI colors on the mouse firmware (it uses the 6-zone palette only). Switch to another mode such as Constantly to display custom DPI colors.",
+            dpiColorWarnOff: "Warning: OFF mode disables all mouse LEDs, so custom DPI colors will not appear on the mouse while it is active.",
+            switchToStaticBtn: "Switch to Constantly",
         },
         ru: {
             settingsBtn: "Настройки",
@@ -1279,6 +1285,9 @@ const dict = {
             copyWebsiteBtn: "Копировать ссылку",
             websiteCopiedMsg: "Скопировано",
             sidebarWebsiteTip: "Страница проекта на GitHub",
+            dpiColorWarnExtra: "Аппаратное предупреждение: режим Extra Mode не реагирует на пользовательские цвета DPI в прошивке мыши (используется только 6-зонная палитра). Для отображения цветов DPI выберите другой режим, например Constantly.",
+            dpiColorWarnOff: "Предупреждение: в режиме OFF подсветка мыши полностью отключена, поэтому пользовательские цвета DPI не отображаются.",
+            switchToStaticBtn: "Включить статичный режим",
         },
         zh: {
             settingsBtn: "设置",
@@ -1704,6 +1713,9 @@ const dict = {
             copyWebsiteBtn: "复制链接",
             websiteCopiedMsg: "已复制",
             sidebarWebsiteTip: "项目 GitHub 主页",
+            dpiColorWarnExtra: "硬件警告：Extra Mode 下鼠标固件不响应自定义 DPI 颜色（仅使用 6 区域色板）。如需在鼠标上显示自定义 DPI 颜色，请切换至其他模式（如常亮 Constantly）。",
+            dpiColorWarnOff: "警告：关闭灯光（OFF）模式下鼠标所有 LED 均已熄灭，自定义 DPI 颜色不会在鼠标上显示。",
+            switchToStaticBtn: "切换为常亮模式",
         }
     };
 

@@ -47,7 +47,7 @@ QString SandboxManager::udevManualCommand() {
     return QStringLiteral(
         "echo 'SUBSYSTEM==\"hidraw\", ATTRS{idVendor}==\"30fa\", ATTRS{idProduct}==\"1040\", MODE=\"0660\", TAG+=\"uaccess\"' "
         "| sudo tee /etc/udev/rules.d/70-delux-m700a.rules && sudo rm -f /etc/udev/rules.d/99-delux-m700a.rules "
-        "&& sudo udevadm control --reload-rules && sudo udevadm trigger"
+        "&& sudo udevadm control --reload-rules && sudo udevadm trigger --subsystem-match=hidraw"
     );
 }
 
@@ -367,7 +367,7 @@ QVariantList SandboxManager::commandExplanations(bool includeDevice, bool includ
 
         addItem(
             QStringLiteral("view-refresh"),
-            QStringLiteral("sudo udevadm control --reload-rules && sudo udevadm trigger"),
+            QStringLiteral("sudo udevadm control --reload-rules && sudo udevadm trigger --subsystem-match=hidraw"),
             loc(QStringLiteral("تفعيل قاعدة udev فوراً بدون إعادة تشغيل الجهاز"),
                 QStringLiteral("Reload & Apply udev Rules Immediately"),
                 QStringLiteral("Применение правил udev без перезагрузки"),
@@ -620,6 +620,7 @@ void SandboxManager::probeHostAccessOnStartup() {
         {QStringLiteral("--host"), QStringLiteral("true")},
         5000,
         [this](QProcess *, int exitCode, QProcess::ExitStatus exitStatus) {
+            if (m_shuttingDown) return;
             const bool verified = (exitStatus == QProcess::NormalExit && exitCode == 0);
             m_hostAccessAvailable = verified;
             m_activePerms[QStringLiteral("host_spawn")] = verified;
@@ -628,6 +629,7 @@ void SandboxManager::probeHostAccessOnStartup() {
             emit appPermissionsChanged();
         },
         [this]() {
+            if (m_shuttingDown) return;
             m_hostAccessAvailable = false;
             m_activePerms[QStringLiteral("host_spawn")] = false;
             emit hostAccessChanged();
@@ -1035,6 +1037,7 @@ void SandboxManager::checkUdevHealth() {
         this, prog, args, 8000,
         [this, hidPermOk, hidPathStr](QProcess *, int exitCode, QProcess::ExitStatus exitStatus) {
             m_udevCheckRunning = false;
+            if (m_shuttingDown) return;
             const bool fileOk = (exitStatus == QProcess::NormalExit && exitCode == 0);
             const bool healthy = fileOk && hidPermOk;
 
@@ -1058,6 +1061,7 @@ void SandboxManager::checkUdevHealth() {
         },
         [this, hidPermOk, hidPathStr]() {
             m_udevCheckRunning = false;
+            if (m_shuttingDown) return;
             QString reason;
             if (!hidPermOk) {
                 reason = loc(
@@ -1094,7 +1098,7 @@ bool SandboxManager::installUdevRules() {
         "chmod 0644 \"$tmp\" && "
         "mv -f \"$tmp\" /etc/udev/rules.d/70-delux-m700a.rules && "
         "rm -f /etc/udev/rules.d/99-delux-m700a.rules && "
-        "udevadm control --reload-rules && udevadm trigger"
+        "udevadm control --reload-rules && udevadm trigger --subsystem-match=hidraw"
     );
 
     const QString prog = inFlatpak ? QStringLiteral("flatpak-spawn") : QStringLiteral("pkexec");
@@ -1106,6 +1110,7 @@ bool SandboxManager::installUdevRules() {
         this, prog, args, 60000,
         [this](QProcess *, int exitCode, QProcess::ExitStatus exitStatus) {
             m_udevOpRunning = false;
+            if (m_shuttingDown) return;
             const bool ok = (exitStatus == QProcess::NormalExit && exitCode == 0);
             checkUdevHealth();
             if (ok) {
@@ -1128,6 +1133,7 @@ bool SandboxManager::installUdevRules() {
         },
         [this]() {
             m_udevOpRunning = false;
+            if (m_shuttingDown) return;
             emit statusMessage(loc(
                 QStringLiteral("انتهت مهلة أو تعذر تشغيل طلب صلاحيات المدير (sudo/pkexec)."),
                 QStringLiteral("Administrator authorization timed out or failed to launch."),
@@ -1158,6 +1164,7 @@ void SandboxManager::refreshAppPermissions() {
             5000,
             [this](QProcess *, int exitCode, QProcess::ExitStatus exitStatus) {
                 m_permRefreshRunning = false;
+                if (m_shuttingDown) return;
                 const bool verified = (exitStatus == QProcess::NormalExit && exitCode == 0);
                 m_hostAccessAvailable = verified;
                 m_activePerms[QStringLiteral("host_spawn")] = verified;
@@ -1167,6 +1174,7 @@ void SandboxManager::refreshAppPermissions() {
             },
             [this]() {
                 m_permRefreshRunning = false;
+                if (m_shuttingDown) return;
                 m_hostAccessAvailable = false;
                 m_activePerms[QStringLiteral("host_spawn")] = false;
                 m_lastCheckedTime = QTime::currentTime().toString(QStringLiteral("HH:mm:ss"));
@@ -1196,8 +1204,10 @@ void SandboxManager::refreshInstalledFlatpakApps() {
         this, prog, args, 10000,
         [this](QProcess *proc, int exitCode, QProcess::ExitStatus exitStatus) {
             m_appsRefreshRunning = false;
+            if (m_shuttingDown) return;
             if (exitStatus == QProcess::NormalExit && exitCode == 0) {
-                const QString out = QString::fromUtf8(proc->readAllStandardOutput());
+                proc->setReadChannel(QProcess::StandardOutput);
+                const QString out = QString::fromUtf8(proc->read(2 * 1024 * 1024));
                 QVariantList apps;
                 for (const QString &line : out.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
                     const QStringList parts = line.split(QLatin1Char('\t'));
@@ -1234,7 +1244,13 @@ void SandboxManager::pollRunningApps(const QStringList &profileLinkedApps) {
     if (!anyLinked) return;
 
     m_appCheckRunning = true;
-    const QString cmd = QStringLiteral("flatpak ps --columns=application 2>/dev/null; echo '---PS---'; ps -eo comm=,args= 2>/dev/null");
+    const QString cmd = QStringLiteral(
+        "flatpak ps --columns=application 2>/dev/null; "
+        "printf '\n===DC_COMM_SECTION===\n'; "
+        "ps -eo comm= 2>/dev/null; "
+        "printf '\n===DC_ARGS_SECTION===\n'; "
+        "ps -eo args= 2>/dev/null"
+    );
     const bool inFlatpak = isRunningInFlatpak();
     const QString prog = inFlatpak ? QStringLiteral("flatpak-spawn") : QStringLiteral("/bin/sh");
     const QStringList args = inFlatpak
@@ -1247,33 +1263,36 @@ void SandboxManager::pollRunningApps(const QStringList &profileLinkedApps) {
             m_appCheckRunning = false;
             if (m_shuttingDown || exitStatus != QProcess::NormalExit || exitCode != 0) return;
 
-            const QString out = QString::fromUtf8(proc->readAllStandardOutput());
-            const QStringList sections = out.split(QStringLiteral("---PS---"));
+            proc->setReadChannel(QProcess::StandardOutput);
+            const QString out = QString::fromUtf8(proc->read(2 * 1024 * 1024));
+            const int commPos = out.indexOf(QStringLiteral("\n===DC_COMM_SECTION===\n"));
+            const int argsPos = (commPos >= 0) ? out.indexOf(QStringLiteral("\n===DC_ARGS_SECTION===\n"), commPos) : -1;
+
+            const QString fpSection = (commPos >= 0) ? out.left(commPos) : out;
+            const QString commSection = (commPos >= 0 && argsPos > commPos)
+                ? out.mid(commPos + 23, argsPos - (commPos + 23))
+                : QString();
+            const QString argsSection = (argsPos >= 0) ? out.mid(argsPos + 23) : QString();
+
             QStringList runningFlatpaks;
-            if (!sections.isEmpty()) {
-                for (const QString &line : sections[0].split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
-                    const QString id = line.trimmed().toLower();
-                    if (!id.isEmpty() && id != QStringLiteral("org.deepcomplex.app")) runningFlatpaks.append(id);
-                }
+            for (const QString &line : fpSection.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+                const QString id = line.trimmed().toLower();
+                if (!id.isEmpty() && id != QStringLiteral("org.deepcomplex.app")) runningFlatpaks.append(id);
             }
 
             QStringList runningExecutables;
-            if (sections.size() >= 2) {
-                for (const QString &rawLine : sections[1].split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
-                    const QString line = rawLine.trimmed();
-                    if (line.isEmpty()) continue;
-                    const int sp = line.indexOf(QLatin1Char(' '));
-                    const QString comm = ((sp > 0) ? line.left(sp) : line).trimmed().toLower();
-                    if (!comm.isEmpty() && comm != QStringLiteral("deepcomplex")) runningExecutables.append(comm);
-                    if (sp > 0) {
-                        const QString rest = line.mid(sp + 1).trimmed();
-                        const int sp2 = rest.indexOf(QLatin1Char(' '));
-                        const QString argv0 = (sp2 > 0) ? rest.left(sp2) : rest;
-                        const QString baseName = QFileInfo(argv0).fileName().toLower();
-                        if (!baseName.isEmpty() && baseName != comm && baseName != QStringLiteral("deepcomplex")) {
-                            runningExecutables.append(baseName);
-                        }
-                    }
+            for (const QString &rawLine : commSection.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+                const QString comm = rawLine.trimmed().toLower();
+                if (!comm.isEmpty() && comm != QStringLiteral("deepcomplex")) runningExecutables.append(comm);
+            }
+            for (const QString &rawLine : argsSection.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+                const QString line = rawLine.trimmed();
+                if (line.isEmpty()) continue;
+                const int sp = line.indexOf(QLatin1Char(' '));
+                const QString argv0 = (sp > 0) ? line.left(sp) : line;
+                const QString baseName = QFileInfo(argv0).fileName().toLower();
+                if (!baseName.isEmpty() && baseName != QStringLiteral("deepcomplex")) {
+                    runningExecutables.append(baseName);
                 }
             }
 
